@@ -4,8 +4,9 @@
       var actions = ['make','miss','grab','pass','lose','shoot','turnover-on','take','foul-by','foul-on','no-basket-for','steal-for','inbound','bounce']
       var output = new Array();
       var replacements = [['number ', '#', ],['makes','make'],['first','1st'],['second','2nd'],['free throw','free-throw'],['mrs.','miss'],['misses','miss'],['crabs','grab'],['grabs','grab'],['passes','pass'],['passed','pass'],['shoots','shoot'],['bounces','bounce'],['inbounds','inbound'],['loses','lose'],['ride','red'],['read','red'],[' red','-red'],['lou', 'blue'],[' blue','-blue'],['turn over','turnover'],['turnover on','turnover-on'],['ii','2nd'],['takes','take'],['fouled','foul'],['foul by','foul-by'],['foul on','foul-on'],['no basket for','no-basket-for'],['ball to','ball-to'],['ball from','ball-from'],['steel','steal'],['steal for','steal-for'],['three','3'],['one','1'],['two','2']];
-      <!--var recognition = new SpeechRecognition();-->
+
       recognition.maxAlternatives = 10;
+      recognition.interimResults = true;
       recognition.onresult = function(event) {
         var resultArray= new Array();
         if (event.results.length > 0) {
