@@ -3,6 +3,7 @@
 module.exports = function(environment) {
   var ENV = {
     modulePrefix: 'testing-system',
+    podModulePrefix: 'testing-system/pods',
     environment: environment,
     baseURL: '/',
     locationType: 'auto',
@@ -16,6 +17,17 @@ module.exports = function(environment) {
     APP: {
       // Here you can pass flags/options to your application instance
       // when it is created
+    },
+    emblemOptions: {
+      blueprints: true
+    },
+    contentSecurityPolicy: {
+	  'default-src': "'none'",
+	  'script-src': "'self'",
+	  'font-src': "'self' fonts.gstatic.com",
+	  'connect-src': "'self' http://localhost:4500",
+	  'img-src': "'self' data:",
+	  'media-src': "'self'"
     }
   };
 

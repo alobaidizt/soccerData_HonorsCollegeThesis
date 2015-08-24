@@ -1,0 +1,60 @@
+.page-content
+  .row
+    .col.s
+      a.btn-floating.btn-med.waves-effect.waves-light.red class=isListening:green:red click="startListening"
+        i.material-icons mic
+    .col.s
+    a.dropdown-button.btn href='#' data-activates='dropdown1' Scripts
+    ul.dropdown-content id="dropdown1"
+      li onclick={action 'scriptClick'} script 1
+  if showScript
+    .row
+      h5.col.s1.grey-text.text-lighten-1 Script:
+    .row
+     .col.left-align.grey-text.text-lighten-2
+        h6 #23 red get the tip, dribbles right to the wing, shoots a 3, makes a 3 
+        h6 #5 blue inbounds the ball to #10 blue, #10 loses the ball to #12 red; steal for #12 red 
+        h6 #12 red passes to #23 red who passes to #33 red who shoots a 2 and is fouled by #23 blue; no basket for #33 
+        h6 #33 red makes the first free throw; #33 red misses the 2nd free throw and #5 blue grabs the rebound 
+        h6 #5 takes the ball, dribbles, and double dribbles. Turnover on #5 blue
+  .row
+  if showResult
+    .row
+      h5.col.s1.blue-text.text.lighten-1 Result:
+    .row
+      h6.col.blue-text.text-lighten-3 = resultString
+  .row
+  .row
+  .row
+  .row
+  .row
+  .row
+  .row
+  .row
+  .row
+  .row
+  .row
+  .row
+  .row
+  .row
+  .row
+  .row
+  .row
+  .row
+  .row
+  .row
+  .row
+  .row
+  .row
+  .row
+  .row
+  .row
+  .row
+  .row
+  .row
+  .row
+  .row
+  .row
+  .row
+
+== outlet

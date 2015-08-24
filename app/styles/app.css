@@ -1,0 +1,9 @@
+.background-image {
+  background-image: url("/assets/images/wallpaper-lebron.jpg");
+  background-size: cover;
+    -webkit-filter: blur(13px);
+    -moz-filter: blur(13px);
+    -o-filter: blur(13px);
+    -ms-filter: blur(13px);
+    filter: blur(13px);
+}
