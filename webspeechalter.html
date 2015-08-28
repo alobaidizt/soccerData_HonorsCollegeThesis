@@ -1,0 +1,258 @@
+ <script type="text/javascript">
+      var recognition = new webkitSpeechRecognition();
+      var keywords = ['shoot', 'make', 'inbound','bounce', 'lose', 'steal', 'pass', 'foul', 'free throw', 'miss', 'rebound', 'turnover', 'blue', 'red']
+      var actions = ['make','miss','grab','pass','lose','shoot','turnover-on','take','foul-by','foul-on','no-basket-for','steal-for','inbound','bounce']
+      var output = new Array();
+      var replacements = [['number ', '#', ],['makes','make'],['first','1st'],['second','2nd'],['free throw','free-throw'],['mrs.','miss'],['misses','miss'],['crabs','grab'],['grabs','grab'],['passes','pass'],['passed','pass'],['shoots','shoot'],['bounces','bounce'],['inbounds','inbound'],['loses','lose'],['ride','red'],['read','red'],[' red','-red'],['lou', 'blue'],[' blue','-blue'],['turn over','turnover'],['turnover on','turnover-on'],['ii','2nd'],['takes','take'],['fouled','foul'],['foul by','foul-by'],['foul on','foul-on'],['no basket for','no-basket-for'],['ball to','ball-to'],['ball from','ball-from'],['steel','steal'],['steal for','steal-for'],['three','3'],['one','1'],['two','2']];
+
+      recognition.maxAlternatives = 10;
+      recognition.interimResults = true;
+      recognition.onresult = function(event) {
+        var resultArray= new Array();
+        if (event.results.length > 0) {
+          var result = event.results[0];
+          for (var i = 0; i < result.length; ++i) {
+            var text = result[i].transcript;
+            resultArray[i] = text;
+            select.options[i] = new Option(text, text);
+          }
+          filter(resultArray);
+        }
+      }
+
+      function start() {
+        select.options.length = 0;
+        recognition.start();
+      }
+
+      function filter(results) {
+        var f1r = firstFilter(results);  // Filter 1 Result
+        console.log(f1r);
+        var f2r = secondFilter(f1r);  // Filter 2 Result
+        console.log(f2r);
+        var f3r = thirdFilter(f2r);  // Filter 3 Result
+        console.log(f3r);
+
+      }
+
+      function firstFilter(results) {
+        var scores = new Array();
+        for (var i = 0; i < results.length; i++) {
+          for (var j = 0; j < keywords.length; j++) {
+            var regexStr = new RegExp(keywords[j],"g")
+            var count = (results[i].toLowerCase().match(regexStr) || []).length;
+            if (typeof scores[i] === 'undefined') {
+              scores[i] = 0;
+            }
+            scores[i] += count;
+          }
+        }
+        var matchedIndex = scores.indexOf(Math.max.apply(Math,scores));
+        return results[matchedIndex].toLowerCase();
+      }
+
+      function secondFilter(f1r) {
+        for (var i = 0; i < replacements.length; i++) {
+          if (f1r.indexOf(replacements[i][0]) > -1) {
+            f1r = replaceAll(replacements[i][0],replacements[i][1],f1r);
+          }
+        }
+        var parsedResult = f1r.split(' ');
+        for (var k = 0; k < parsedResult.length; k++) {
+          if (parsedResult[k].toString().includes('#')) {
+            output.push(parsedResult[k]); 
+          }
+          if (parsedResult[k].toString().includes('1st')) {
+            output.push(parsedResult[k]); 
+          }
+          if (parsedResult[k].toString().includes('2nd')) {
+            output.push(parsedResult[k]); 
+          }
+          if (parsedResult[k].toString().includes('rebound')) {
+            output.push(parsedResult[k]); 
+          }
+          if (parsedResult[k].toString().includes('inbound')) {
+            output.push(parsedResult[k]); 
+          }
+          if (parsedResult[k].toString().includes('bounce')) {
+            output.push(parsedResult[k]); 
+          }
+          if (parsedResult[k].toString().includes('make')) {
+            output.push(parsedResult[k]); 
+          }
+          if (parsedResult[k].toString().includes('take')) {
+            output.push(parsedResult[k]); 
+          }
+          if (parsedResult[k].toString().includes('miss')) {
+            output.push(parsedResult[k]); 
+          }
+          if (parsedResult[k].toString().includes('grab')) {
+            output.push(parsedResult[k]); 
+          }
+          if (parsedResult[k].toString().includes('lose')) {
+            output.push(parsedResult[k]); 
+          }
+          if (parsedResult[k].toString().includes('pass')) {
+            output.push(parsedResult[k]); 
+          }
+          if (parsedResult[k].toString().includes('shoot')) {
+            output.push(parsedResult[k]); 
+          }
+          if (parsedResult[k].toString().includes('turnover-on')) {
+            output.push(parsedResult[k]); 
+          }
+          if (parsedResult[k].toString().includes('free-throw')) {
+            output.push(parsedResult[k]); 
+          }
+          if (parsedResult[k].toString().includes('no-basket-for')) {
+            output.push(parsedResult[k]); 
+          }
+          if (parsedResult[k].toString().includes('foul-by')) {
+            output.push(parsedResult[k]); 
+          }
+          if (parsedResult[k].toString().includes('foul-on')) {
+            output.push(parsedResult[k]); 
+          }
+          if (parsedResult[k].toString().includes('ball-to')) {
+            output.push(parsedResult[k]); 
+          }
+          if (parsedResult[k].toString().includes('ball-from')) {
+            output.push(parsedResult[k]); 
+          }
+          if (parsedResult[k].toString().includes('steal-for')) {
+            output.push(parsedResult[k]); 
+          }
+          if (isNumber(parsedResult[k].toString())) {
+            output.push(parsedResult[k]); 
+          }
+        }
+        return output;
+      }
+
+      var currentIndex;
+      function thirdFilter(f2r) {
+        var lastID, lastID_i, currentElement;
+        var finalResults_i = 0;
+        currentIndex = 0;
+        var finalResults = new Array();
+        while (currentIndex < (f2r.length - 1)) {
+          currentElement = getNextElement(f2r, currentIndex);
+          if (currentElement.indexOf('#') > -1) {
+            lastID = currentElement; 
+            lastID_i = currentIndex; 
+            currentIndex++;
+            currentElement = getNextElement(f2r, currentIndex);
+          }
+          if (isAction(currentElement)) {
+            var type = getActionParamsType(currentElement);
+            console.log(currentElement);
+            console.log(type);
+            finalResults[finalResults_i] = getContext(f2r, lastID_i,currentIndex, type);
+            console.log(finalResults_i);
+            finalResults_i++;
+          }
+          currentIndex++;
+        }
+        return finalResults
+      }
+
+      function getNextElement(elements, i) {
+        return elements[i];
+      }
+
+      function isAction(element) {
+        if (actions.indexOf(element) > -1) {
+          return true;
+        } else {
+          return false;
+        }
+      }
+
+      function isID(element) {
+        if (element.indexOf('#') > -1) {
+          return true;
+        } else {
+          return false;
+        }
+      }
+
+      function getActionParamsType(element) {
+        var beforeType = ['make','miss','grab','shoot','take'];
+        var afterType = ['turnover-on','foul-on','foul-by','no-basket-for','steal-for'];
+        var bothType = ['lose','pass','inbound','bounce'];
+        if (beforeType.indexOf(element) > -1) {
+          return "before";
+        } else if (afterType.indexOf(element) > -1) {
+          return "after";
+        } else if (bothType.indexOf(element) > -1) {
+          return "both";
+        }
+      }
+
+      function getContext(arr,ID_i, current_i,type) {
+        var context = [];
+        var contextComplete = false;
+        if (type === "before") {
+          context.push(arr[ID_i]);
+          while (!contextComplete) {
+            context.push(arr[current_i++]);
+            if (typeof (arr[current_i]) === 'undefined') {
+              console.log(typeof (arr[current_i]));
+              currentIndex = current_i - 1
+              contextComplete = true;
+              break;
+            }
+            if (isAction(arr[current_i]) || isID(arr[current_i])) {
+              currentIndex = current_i;
+              contextComplete = true;
+            }
+          }
+        } else if (type === "after") {
+          while (!contextComplete) {
+            context.push(arr[current_i++]);
+            if (typeof (arr[current_i]) === 'undefined') {
+              console.log(typeof (arr[current_i]));
+              currentIndex = current_i - 1
+              contextComplete = true;
+              break;
+            }
+            if (isID(arr[current_i])) {
+              context.push(arr[current_i]);
+              currentIndex = current_i;
+              contextComplete = true;
+            } else if (isAction(arr[current_i])) {
+              currentIndex = current_i;
+              contextComplete = true;
+            }
+          }
+        } else if (type === "both") {
+          context.push(arr[ID_i]);
+          while (!contextComplete) {
+            context.push(arr[current_i++]);
+            if (typeof (arr[current_i]) === 'undefined') {
+              console.log(typeof (arr[current_i]));
+              currentIndex = current_i - 1
+              contextComplete = true;
+              break;
+            }
+            if (isID(arr[current_i])) {
+              context.push(arr[current_i]);
+              currentIndex = current_i;
+              contextComplete = true;
+            }
+          }
+        }
+        return context;
+      }
+
+/// Helpers
+      function replaceAll(find, replace, str) {
+        return str.replace(new RegExp(find, 'g'), replace);
+      }
+      function isNumber(n) {
+        return !isNaN(parseFloat(n)) && isFinite(n);
+      }
+    </script>
+
+    <select id="select"></select>
+    <button onclick="start()">Click to Speak</button>
