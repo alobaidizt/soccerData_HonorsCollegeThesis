@@ -5,7 +5,10 @@ SplashController = Ember.Controller.extend
   isListening:  false
   showResult:   false
   recognition:      undefined
-  currentIndex:     undefined 
+  currentIndex	    undefined
+  lastID:           undefined
+  lastID_i:   	    undefined
+  currentElement:   undefined
 
   init: ->
     @_super()
@@ -67,6 +70,9 @@ SplashController = Ember.Controller.extend
 
     f2r = @secondFilter(f1r)
     console.log(f2r)
+
+    f3r = @secondFilter(f2r)
+    console.log(f3r)
 
   firstFilter: (results) ->
     scores = new Array()
@@ -134,11 +140,104 @@ SplashController = Ember.Controller.extend
         output.push(parsedResult) 
     return output
 
+  thirdFilter: (f2r) ->
+    finalResults_i = 0
+    @set('currentIndex', 0)
+    finalResults = new Array();
+    currentIndex = @get('currentIndex')
+    while currentIndex < (f2r.length - 1)
+      currentElement = getNextElement(f2r, currentIndex)
+      if currentElement.indexOf('#') > -1
+        @set('lastID', currentElement)
+        @set('lastID_i', currentIndex)
+        currentIndex++
+        currentElement = getNextElement(f2r, currentIndex)
+      if isAction(currentElement)
+        type = getActionParamsType(currentElement)
+        console.log(currentElement)
+        console.log(type)
+        finalResults[finalResults_i] = getContext(f2r, lastID_i,currentIndex, type)
+        console.log(finalResults_i)
+        finalResults_i++
+      currentIndex++
+    return finalResults
+
+  getNextElement: (elements, i) ->
+    elements[i]
+
+  isAction: (element) ->
+    if actions.indexOf(element) > -1
+      true
+    else
+      false
+
+  isID: (element) ->
+    if element.indexOf('#') > -1
+      true
+    else
+      false
+
+  getActionParamsType: (element) ->
+    beforeType = ['make','miss','grab','shoot','take']
+    afterType = ['turnover-on','foul-on','foul-by','no-basket-for','steal-for']
+    bothType = ['lose','pass','inbound','bounce']
+    if beforeType.indexOf(element) > -1
+      return "before"
+    else if afterType.indexOf(element) > -1
+      "after"
+    else if bothType.indexOf(element) > -1
+      "both"
+
+  getContext: (arr,ID_i, current_i,type) ->
+    context = []
+    contextComplete = false
+    if type == "before"
+      context.push(arr[ID_i])
+      while (!contextComplete) 
+        context.push(arr[current_i++])
+        if typeof (arr[current_i]) == 'undefined'
+          console.log typeof(arr[current_i])
+          currentIndex = current_i - 1
+          contextComplete = true
+          break
+        if isAction(arr[current_i]) || isID(arr[current_i])
+          currentIndex = current_i
+          contextComplete = true
+    else if type == "after"
+      while (!contextComplete)
+        context.push(arr[current_i++])
+        if (typeof (arr[current_i]) == 'undefined')
+          console.log(typeof (arr[current_i]))
+          currentIndex = current_i - 1
+          contextComplete = true
+          break
+        if (isID(arr[current_i]))
+          context.push(arr[current_i])
+          currentIndex = current_i
+          contextComplete = true
+        else if (isAction(arr[current_i]))
+          currentIndex = current_i
+          contextComplete = true
+    else if (type == "both")
+      context.push(arr[ID_i])
+      while (!contextComplete)
+        context.push(arr[current_i++])
+        if (typeof (arr[current_i]) == 'undefined')
+          console.log(typeof (arr[current_i]))
+          currentIndex = current_i - 1
+          contextComplete = true
+          break
+        if (isID(arr[current_i]))
+          context.push(arr[current_i])
+          currentIndex = current_i
+          contextComplete = true
+    return context
+
   replaceAll: (find, replace, str) ->
     return str.replace(new RegExp(find, 'g'), replace)
 
   isNumber: (n) ->
-        return !isNaN(parseFloat(n)) && isFinite(n)
+    return !isNaN(parseFloat(n)) && isFinite(n)
 
   actions:
     scriptClick: ->
