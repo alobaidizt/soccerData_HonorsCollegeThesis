@@ -1,17 +1,28 @@
 `import Ember from 'ember'`
 
 SplashController = Ember.Controller.extend
-  showScript:	false
-  isListening:  false
-  showResult:   false
+  showScript:	      false
+  isListening:      false
+  showResult:       false
+  detectedActions:  []
   recognition:      undefined
   currentIndex:	    undefined
   lastID:           undefined
   lastID_i:   	    undefined
   currentElement:   undefined
+  structuredData:   undefined
+
+  hasActions: Ember.computed 'detectedActions', ->
+    console.log 'heuuu'
+    Ember.isPresent @get('detectedActions')
 
   init: ->
     @_super()
+    data = [
+      ['#24-blue','pass','ball-to','#10-blue']
+      ['#3-red','make','2']
+    ]
+    @set('structuredData', data)
 
     recognition = new webkitSpeechRecognition()
 
@@ -70,6 +81,9 @@ SplashController = Ember.Controller.extend
 
     f3r = @thirdFilter(f2r)
     console.log(f3r)
+    console.log @get('detectedActions')
+    @set('structuredData', f3r)
+    #@set('detectedActions', [])
 
     @setProperties
       resultString: f1r
@@ -131,7 +145,7 @@ SplashController = Ember.Controller.extend
         output.push(parsedResult)
       if parsedResult.toString().includes('foul-by')
         output.push(parsedResult)
-      if parsedResult.toString().includes('foul-on') 
+      if parsedResult.toString().includes('foul-on')
         output.push(parsedResult)
       if parsedResult.toString().includes('ball-to')
         output.push(parsedResult)
@@ -156,6 +170,9 @@ SplashController = Ember.Controller.extend
         currentIndex++
         currentElement = @getNextElement(f2r, currentIndex)
       if @isAction(currentElement)
+        actions = @get('detectedActions')
+        actions.pushObject(currentElement)
+        @set('detectedActions', actions)
         type = @getActionParamsType(currentElement)
         console.log(currentElement)
         console.log(type)
