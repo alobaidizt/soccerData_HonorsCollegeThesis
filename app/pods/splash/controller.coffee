@@ -18,11 +18,17 @@ SplashController = Ember.Controller.extend
 
   init: ->
     @_super()
+
+    #For Testing purposes
     data = [
-      ['#24-blue','pass','ball-to','#10-blue']
-      ['#3-red','make','2']
+      ['Item 1','12342344','#24-blue','pass','ball-to','#10-blue']
+      ['Item 2','23567681','#3-red','make','2']
     ]
+    actions = ['make','shoot','rebound']
+    resultTxt = 'Lorem ipsum dolor sit amet, eu has graece adolescens efficiendi'
     @set('structuredData', data)
+    @set('detectedActions', actions)
+    @set('resultString', resultTxt)
 
     recognition = new webkitSpeechRecognition()
 
@@ -56,7 +62,7 @@ SplashController = Ember.Controller.extend
     )
     recognition.onstart = ->
     recognition.onstop  = ->
-    recognition.onend   = -> 
+    recognition.onend   = ->
       that = window.privateVar
       that.toggleProperty('isListening')
 
@@ -73,6 +79,9 @@ SplashController = Ember.Controller.extend
 
 
   filter: (results) ->
+
+    @set('detectedActions', [])
+
     f1r = @firstFilter(results)
     console.log(f1r)
 
@@ -83,7 +92,6 @@ SplashController = Ember.Controller.extend
     console.log(f3r)
     console.log @get('detectedActions')
     @set('structuredData', f3r)
-    #@set('detectedActions', [])
 
     @setProperties
       resultString: f1r
@@ -177,6 +185,7 @@ SplashController = Ember.Controller.extend
         console.log(currentElement)
         console.log(type)
         finalResults[finalResults_i] = @getContext(f2r, @get('lastID_i'),currentIndex, type)
+        finalResults[finalResults_i].unshift("Item #{finalResults_i + 1}", "2345586432")
         console.log(finalResults_i)
         finalResults_i++
       currentIndex++
