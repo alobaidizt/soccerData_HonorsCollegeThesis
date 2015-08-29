@@ -5,7 +5,7 @@ SplashController = Ember.Controller.extend
   isListening:  false
   showResult:   false
   recognition:      undefined
-  currentIndex	    undefined
+  currentIndex:	    undefined
   lastID:           undefined
   lastID_i:   	    undefined
   currentElement:   undefined
@@ -19,8 +19,8 @@ SplashController = Ember.Controller.extend
 
     keywords = ['shoot', 'make', 'inbound','bounce', 'lose', 'steal', 'pass', 'foul', 'free throw', 'miss', 'rebound', 'turnover', 'blue', 'red']
     bbActions = ['make','miss','grab','pass','lose','shoot','turnover-on','take','foul-by','foul-on','no-basket-for','steal-for','inbound','bounce']
-    output = new Array();
-    replacements = [['number ', '#', ],['makes','make'],['first','1st'],['second','2nd'],['free throw','free-throw'],['mrs.','miss'],['misses','miss'],['crabs','grab'],['grabs','grab'],['passes','pass'],['passed','pass'],['shoots','shoot'],['bounces','bounce'],['inbounds','inbound'],['loses','lose'],['ride','red'],['read','red'],[' red','-red'],['lou', 'blue'],[' blue','-blue'],['turn over','turnover'],['turnover on','turnover-on'],['ii','2nd'],['takes','take'],['fouled','foul'],['foul by','foul-by'],['foul on','foul-on'],['no basket for','no-basket-for'],['ball to','ball-to'],['ball from','ball-from'],['steel','steal'],['steal for','steal-for'],['three','3'],['one','1'],['two','2']];
+    output = new Array()
+    replacements = [['number ', '#', ],['makes','make'],['first','1st'],['second','2nd'],['free throw','free-throw'],['mrs.','miss'],['misses','miss'],['crabs','grab'],['grabs','grab'],['passes','pass'],['passed','pass'],['shoots','shoot'],['bounces','bounce'],['inbounds','inbound'],['loses','lose'],['ride','red'],['read','red'],[' red','-red'],['lou', 'blue'],[' blue','-blue'],['turn over','turnover'],['turnover on','turnover-on'],['ii','2nd'],['takes','take'],['fouled','foul'],['foul by','foul-by'],['foul on','foul-on'],['no basket for','no-basket-for'],['ball to','ball-to'],['ball from','ball-from'],['steel','steal'],['steal for','steal-for'],['three','3'],['one','1'],['two','2']]
 
 
     @setProperties
@@ -64,15 +64,16 @@ SplashController = Ember.Controller.extend
   filter: (results) ->
     f1r = @firstFilter(results)
     console.log(f1r)
-    @setProperties
-      resultString: f1r
-      showResult: true
 
     f2r = @secondFilter(f1r)
     console.log(f2r)
 
-    f3r = @secondFilter(f2r)
+    f3r = @thirdFilter(f2r)
     console.log(f3r)
+
+    @setProperties
+      resultString: f1r
+      showResult: true
 
   firstFilter: (results) ->
     scores = new Array()
@@ -90,73 +91,75 @@ SplashController = Ember.Controller.extend
   secondFilter: (f1r) ->
     for replacement in @get('replacements')
       if (f1r.indexOf(replacement[0]) > -1)
-        f1r = replaceAll(replacement[0],replacement[1],f1r);
-    parsedResults = f1r.split(' ')
+        f1r = @replaceAll(replacement[0],replacement[1],f1r)
+        console.log f1r
+
+    parsedResults = f1r.split(" ")
     output = @get('output')
     for parsedResult in parsedResults
       if parsedResult.toString().includes('#')
-        output.push(parsedResult) 
+        output.push(parsedResult)
       if parsedResult.toString().includes('1st')
-        output.push(parsedResult) 
+        output.push(parsedResult)
       if parsedResult.toString().includes('2nd')
-        output.push(parsedResult) 
+        output.push(parsedResult)
       if parsedResult.toString().includes('rebound')
-        output.push(parsedResult) 
+        output.push(parsedResult)
       if parsedResult.toString().includes('inbound')
-        output.push(parsedResult) 
+        output.push(parsedResult)
       if parsedResult.toString().includes('bounce')
-        output.push(parsedResult) 
+        output.push(parsedResult)
       if parsedResult.toString().includes('make')
-        output.push(parsedResult) 
+        output.push(parsedResult)
       if parsedResult.toString().includes('take')
-        output.push(parsedResult) 
+        output.push(parsedResult)
       if parsedResult.toString().includes('miss')
-        output.push(parsedResult) 
+        output.push(parsedResult)
       if parsedResult.toString().includes('grab')
-        output.push(parsedResult) 
+        output.push(parsedResult)
       if parsedResult.toString().includes('lose')
-        output.push(parsedResult) 
+        output.push(parsedResult)
       if parsedResult.toString().includes('pass')
-        output.push(parsedResult) 
+        output.push(parsedResult)
       if parsedResult.toString().includes('shoot')
-        output.push(parsedResult) 
+        output.push(parsedResult)
       if parsedResult.toString().includes('turnover-on')
-        output.push(parsedResult) 
+        output.push(parsedResult)
       if parsedResult.toString().includes('free-throw')
-        output.push(parsedResult) 
+        output.push(parsedResult)
       if parsedResult.toString().includes('no-basket-for')
-        output.push(parsedResult) 
+        output.push(parsedResult)
       if parsedResult.toString().includes('foul-by')
-        output.push(parsedResult) 
+        output.push(parsedResult)
       if parsedResult.toString().includes('foul-on') 
-        output.push(parsedResult) 
+        output.push(parsedResult)
       if parsedResult.toString().includes('ball-to')
-        output.push(parsedResult) 
+        output.push(parsedResult)
       if parsedResult.toString().includes('ball-from')
-        output.push(parsedResult) 
+        output.push(parsedResult)
       if parsedResult.toString().includes('steal-for')
-        output.push(parsedResult) 
+        output.push(parsedResult)
       if @isNumber(parsedResult.toString())
-        output.push(parsedResult) 
+        output.push(parsedResult)
     return output
 
   thirdFilter: (f2r) ->
     finalResults_i = 0
     @set('currentIndex', 0)
-    finalResults = new Array();
+    finalResults = new Array()
     currentIndex = @get('currentIndex')
     while currentIndex < (f2r.length - 1)
-      currentElement = getNextElement(f2r, currentIndex)
+      currentElement = @getNextElement(f2r, currentIndex)
       if currentElement.indexOf('#') > -1
         @set('lastID', currentElement)
         @set('lastID_i', currentIndex)
         currentIndex++
-        currentElement = getNextElement(f2r, currentIndex)
-      if isAction(currentElement)
-        type = getActionParamsType(currentElement)
+        currentElement = @getNextElement(f2r, currentIndex)
+      if @isAction(currentElement)
+        type = @getActionParamsType(currentElement)
         console.log(currentElement)
         console.log(type)
-        finalResults[finalResults_i] = getContext(f2r, lastID_i,currentIndex, type)
+        finalResults[finalResults_i] = @getContext(f2r, @get('lastID_i'),currentIndex, type)
         console.log(finalResults_i)
         finalResults_i++
       currentIndex++
@@ -166,7 +169,7 @@ SplashController = Ember.Controller.extend
     elements[i]
 
   isAction: (element) ->
-    if actions.indexOf(element) > -1
+    if @get('bbActions').indexOf(element) > -1
       true
     else
       false
@@ -193,14 +196,14 @@ SplashController = Ember.Controller.extend
     contextComplete = false
     if type == "before"
       context.push(arr[ID_i])
-      while (!contextComplete) 
+      while (!contextComplete)
         context.push(arr[current_i++])
         if typeof (arr[current_i]) == 'undefined'
           console.log typeof(arr[current_i])
           currentIndex = current_i - 1
           contextComplete = true
           break
-        if isAction(arr[current_i]) || isID(arr[current_i])
+        if @isAction(arr[current_i]) || @isID(arr[current_i])
           currentIndex = current_i
           contextComplete = true
     else if type == "after"
@@ -211,11 +214,11 @@ SplashController = Ember.Controller.extend
           currentIndex = current_i - 1
           contextComplete = true
           break
-        if (isID(arr[current_i]))
+        if (@isID(arr[current_i]))
           context.push(arr[current_i])
           currentIndex = current_i
           contextComplete = true
-        else if (isAction(arr[current_i]))
+        else if (@isAction(arr[current_i]))
           currentIndex = current_i
           contextComplete = true
     else if (type == "both")
@@ -227,7 +230,7 @@ SplashController = Ember.Controller.extend
           currentIndex = current_i - 1
           contextComplete = true
           break
-        if (isID(arr[current_i]))
+        if (@isID(arr[current_i]))
           context.push(arr[current_i])
           currentIndex = current_i
           contextComplete = true
