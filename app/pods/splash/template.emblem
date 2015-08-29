@@ -19,17 +19,18 @@
     a.waves-effect.waves-light.btn.deep-orange.lighten-1.grey-text.text-darken-1 Action
     each item in detectedActions
       a.waves-effect.waves-light.btn.btn-flat.teal-text.text-accent-2.transparent = item 
-  .row.container
-    table.hoverable
-      thead.teal-text.text-accent-2
-        tr
-          th Item #
-          th TimeStamp
-      tbody.teal-text.text-accent-3
-        each structuredDatum in structuredData
+  if showTable
+    .row.container
+      table.centered.hoverable
+        thead.teal-text.text-accent-2
           tr
-            each item in structuredDatum
-              td = item
+            th Item #
+            th TimeStamp
+        tbody.teal-text.text-accent-3
+          each structuredDatum in structuredData
+            tr
+              each item in structuredDatum
+                td = item
   .row
 
 == outlet

@@ -12,23 +12,23 @@ SplashController = Ember.Controller.extend
   currentElement:   undefined
   structuredData:   undefined
 
-  hasActions: Ember.computed 'detectedActions', ->
-    console.log 'heuuu'
-    Ember.isPresent @get('detectedActions')
+  showTable: Ember.computed 'structuredData', ->
+    Ember.isPresent @get('structuredData')
 
   init: ->
     @_super()
 
     #For Testing purposes
-    data = [
-      ['Item 1','12342344','#24-blue','pass','ball-to','#10-blue']
-      ['Item 2','23567681','#3-red','make','2']
-    ]
-    actions = ['make','shoot','rebound']
-    resultTxt = 'Lorem ipsum dolor sit amet, eu has graece adolescens efficiendi'
-    @set('structuredData', data)
-    @set('detectedActions', actions)
-    @set('resultString', resultTxt)
+     
+    #data = [
+      #['Item 1','-','#24-blue','pass','ball-to','#10-blue']
+      #['Item 2','23567681','#3-red','make','2']
+    #]
+    #actions = ['make','shoot','rebound']
+    #resultTxt = 'Lorem ipsum dolor sit amet, eu has graece adolescens efficiendi'
+    #@set('structuredData', data)
+    #@set('detectedActions', actions)
+    #@set('resultString', resultTxt)
 
     recognition = new webkitSpeechRecognition()
 
@@ -185,7 +185,7 @@ SplashController = Ember.Controller.extend
         console.log(currentElement)
         console.log(type)
         finalResults[finalResults_i] = @getContext(f2r, @get('lastID_i'),currentIndex, type)
-        finalResults[finalResults_i].unshift("Item #{finalResults_i + 1}", "2345586432")
+        finalResults[finalResults_i].unshift("Item #{finalResults_i + 1}", "-")
         console.log(finalResults_i)
         finalResults_i++
       currentIndex++
