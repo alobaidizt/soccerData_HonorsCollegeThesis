@@ -15,7 +15,9 @@
     "hammerjs": "~2.0.4",
     "material-design-icons": "~2.0.0",
     "fontawesome": "~4.4.0",
-    "materialize": "~0.97.0"
+    "materialize": "~0.97.0",
+    "moment": ">= 2.8.0",
+    "moment-timezone": ">= 0.1.0"
   },
   "resolutions": {
     "jquery": ">=2.1.1"

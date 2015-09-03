@@ -1,4 +1,5 @@
 `import Ember from 'ember'`
+`import moment from 'moment'`
 
 SplashController = Ember.Controller.extend
   showScript:	      false
@@ -11,9 +12,14 @@ SplashController = Ember.Controller.extend
   lastID_i:   	    undefined
   currentElement:   undefined
   structuredData:   undefined
+  startTime:        undefined
+  endTime:          undefined
 
   showTable: Ember.computed 'structuredData', ->
     Ember.isPresent @get('structuredData')
+
+  duration: Em.computed 'startTime', 'endTime', ->
+    @get('endTime').diff(@get('startTime'), 'seconds')
 
   init: ->
     @_super()
@@ -33,6 +39,7 @@ SplashController = Ember.Controller.extend
     recognition = new webkitSpeechRecognition()
 
     recognition.maxAlternatives = 10
+    recognition.continuous = true
 
     keywords = ['shoot', 'make', 'inbound','bounce', 'lose', 'steal', 'pass', 'foul', 'free throw', 'miss', 'rebound', 'turnover', 'blue', 'red']
     bbActions = ['make','miss','grab','pass','lose','shoot','turnover-on','take','foul-by','foul-on','no-basket-for','steal-for','inbound','bounce']
@@ -55,9 +62,11 @@ SplashController = Ember.Controller.extend
 
       resultArray= new Array()
       if (event.results.length > 0)
-        for result,i in event.results[0]
-          text = result.transcript
-          resultArray[i] = text
+        for rr,h in event.results
+          for result,i in event.results[h]
+            text = result.transcript
+            console.log text
+            resultArray[i] = text
         @filter(resultArray)
     )
     recognition.onstart = ->
@@ -278,8 +287,13 @@ SplashController = Ember.Controller.extend
 
       if !status
         recognition.start()
+        now = moment()
+        @set 'startTime', now
       else
         recognition.stop()
+        now = moment()
+        @set 'endTime', now
+        console.log @get('duration')
 
 
 `export default SplashController`
