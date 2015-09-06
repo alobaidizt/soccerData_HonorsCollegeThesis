@@ -6,6 +6,8 @@ SplashController = Ember.Controller.extend
   isListening:      false
   showResult:       false
   detectedActions:  []
+  playerIDs:        []
+  playersData:      []
   recognition:      undefined
   currentIndex:	    undefined
   lastID:           undefined
@@ -82,7 +84,7 @@ SplashController = Ember.Controller.extend
             else
               interimText += event.results[h][0].transcript
               #console.log interimText
-        console.log interimText
+        #console.log interimText
         @recordTS(interimText) if interimText != ''  # Record Timestamps
 
         @filter(resultArray) if Em.isPresent(resultArray)
@@ -133,8 +135,11 @@ SplashController = Ember.Controller.extend
     #console.log(f2r)
 
     f3r = @thirdFilter(f2r)
-    console.log(f3r)
-    console.log @get('timestamps')
+    #console.log(f1r)
+    #console.log(f2r)
+    #console.log(f3r)
+    console.log 'players Data: ', @get('playersData')
+    console.log 'playerIDs: ', @get('playerIDs')
     #console.log @get('detectedActions')
     @set('structuredData', f3r)
 
@@ -223,12 +228,13 @@ SplashController = Ember.Controller.extend
     currentIndex = @get('currentIndex')
     while currentIndex < (f2r.length - 1)
       currentElement = @getNextElement(f2r, currentIndex)
-      if currentElement.indexOf('#') > -1
+      if @isID(currentElement)
         @set('lastID', currentElement)
         @set('lastID_i', currentIndex)
         currentIndex++
         currentElement = @getNextElement(f2r, currentIndex)
       if @isAction(currentElement)
+        action = currentElement
         actions = @get('detectedActions')
         actions.pushObject(currentElement)
         @set('detectedActions', actions)
@@ -237,7 +243,7 @@ SplashController = Ember.Controller.extend
         timeStamp = if actionTS? then actionTS else "-"
         #console.log(currentElement)
         #console.log(type)
-        finalResults[finalResults_i] = @getContext(f2r, @get('lastID_i'),currentIndex, type)
+        finalResults[finalResults_i] = @getContext(f2r, @get('lastID_i'),currentIndex, type, action)
         finalResults[finalResults_i].unshift("Item #{finalResults_i + 1}", timeStamp)
         #console.log(finalResults_i)
         finalResults_i++
@@ -255,6 +261,11 @@ SplashController = Ember.Controller.extend
 
   isID: (element) ->
     if element.indexOf('#') > -1
+      console.log (element)
+      if !(@get('playerIDs').indexOf(element) > -1)
+        @get('playerIDs').push(element)
+        @get('playersData').push([element])
+        console.log @get('playerIDs')
       true
     else
       false
@@ -267,9 +278,9 @@ SplashController = Ember.Controller.extend
         return timestamp
 
   getActionParamsType: (element) ->
-    beforeType = ['make','miss','grab','shoot','take']
+    beforeType = ['make','miss','grab','shoot','take','lose']
     afterType = ['turnover-on','foul-on','foul-by','no-basket-for','steal-for']
-    bothType = ['lose','pass','inbound','bounce']
+    bothType = ['pass','inbound','bounce']
     if beforeType.indexOf(element) > -1
       return "before"
     else if afterType.indexOf(element) > -1
@@ -277,11 +288,13 @@ SplashController = Ember.Controller.extend
     else if bothType.indexOf(element) > -1
       "both"
 
-  getContext: (arr,ID_i, current_i,type) ->
+  getContext: (arr,ID_i, current_i,type, action) ->
     context = []
     contextComplete = false
     if type == "before"
-      context.push(arr[ID_i])
+      playerID = arr[ID_i]
+      context.push(playerID)
+      @addActionToPlayer(playerID, action)
       while (!contextComplete)
         context.push(arr[current_i++])
         if typeof (arr[current_i]) == 'undefined'
@@ -301,7 +314,9 @@ SplashController = Ember.Controller.extend
           contextComplete = true
           break
         if (@isID(arr[current_i]))
-          context.push(arr[current_i])
+          playerID = arr[current_i]
+          context.push(playerID)
+          @addActionToPlayer(playerID, action)
           @set('lastID_i', current_i)
           currentIndex = current_i
           contextComplete = true
@@ -309,7 +324,9 @@ SplashController = Ember.Controller.extend
           currentIndex = current_i
           contextComplete = true
     else if (type == "both")
-      context.push(arr[ID_i])
+      playerID = arr[ID_i]
+      context.push(playerID)
+      @addActionToPlayer(playerID, action)
       while (!contextComplete)
         context.push(arr[current_i++])
         if (typeof (arr[current_i]) == 'undefined')
@@ -323,6 +340,11 @@ SplashController = Ember.Controller.extend
           currentIndex = current_i
           contextComplete = true
     return context
+
+  addActionToPlayer: (playerID, action) ->
+    for id,i in @get('playerIDs')
+      if Em.isEqual(id,playerID)
+        @get('playersData')[i].push(action)
 
   replaceAll: (find, replace, str) ->
     return str.replace(new RegExp(find, 'g'), replace)
