@@ -14,6 +14,7 @@ SplashController = Ember.Controller.extend
   structuredData:   undefined
   startTime:        undefined
   endTime:          undefined
+  tsPointer:        null       # Timestamp pointer
 
   showTable: Ember.computed 'structuredData', ->
     Ember.isPresent @get('structuredData')
@@ -39,11 +40,14 @@ SplashController = Ember.Controller.extend
     recognition = new webkitSpeechRecognition()
 
     recognition.maxAlternatives = 10
-    recognition.continuous = true
+    recognition.continuous      = true
+    recognition.interimResults  = true
 
     keywords = ['shoot', 'make', 'inbound','bounce', 'lose', 'steal', 'pass', 'foul', 'free throw', 'miss', 'rebound', 'turnover', 'blue', 'red']
     bbActions = ['make','miss','grab','pass','lose','shoot','turnover-on','take','foul-by','foul-on','no-basket-for','steal-for','inbound','bounce']
     output = new Array()
+    outputTS = new Array()
+    timestamps = new Array()
     replacements = [['number ', '#', ],['makes','make'],['first','1st'],['second','2nd'],['free throw','free-throw'],['mrs.','miss'],['misses','miss'],['crabs','grab'],['grabs','grab'],['passes','pass'],['passed','pass'],['shoots','shoot'],['bounces','bounce'],['inbounds','inbound'],['loses','lose'],['ride','red'],['read','red'],[' red','-red'],['lou', 'blue'],[' blue','-blue'],['turn over','turnover'],['turnover on','turnover-on'],['ii','2nd'],['takes','take'],['fouled','foul'],['foul by','foul-by'],['foul on','foul-on'],['no basket for','no-basket-for'],['ball to','ball-to'],['ball from','ball-from'],['steel','steal'],['steal for','steal-for'],['three','3'],['one','1'],['two','2']]
 
 
@@ -52,22 +56,36 @@ SplashController = Ember.Controller.extend
       keywords:     keywords
       bbActions:      bbActions
       output:       output
+      output:       outputTS
       replacements: replacements
+      timestamps:   timestamps
 
 
     window.privateVar = this
 
     recognition.onresult = ((event) =>
       that = window.privateVar
+      interimText = ""
+      @set 'outputTS', []
+      @set 'output', []
 
       resultArray= new Array()
       if (event.results.length > 0)
+        ri = event.resultIndex
         for rr,h in event.results
-          for result,i in event.results[h]
-            text = result.transcript
-            console.log text
-            resultArray[i] = text
-        @filter(resultArray)
+          if h >= ri
+            if event.results[h].isFinal
+              @set 'tsPointer', null
+              for result,i in event.results[h]
+                text = result.transcript
+                resultArray[i] = text
+            else
+              interimText += event.results[h][0].transcript
+              #console.log interimText
+        console.log interimText
+        @recordTS(interimText) if interimText != ''  # Record Timestamps
+
+        @filter(resultArray) if Em.isPresent(resultArray)
     )
     recognition.onstart = ->
     recognition.onstop  = ->
@@ -87,31 +105,50 @@ SplashController = Ember.Controller.extend
      ))
 
 
+  recordTS: (text) ->
+    @secondFilter(text,'timestamp')
+    f2 = @get('outputTS')
+
+    #console.log @get('tsPointer')
+    if @get('tsPointer')?
+      f2 = f2.slice(@get('tsPointer') + 1)
+
+    for word,i in f2
+      if @isAction(word)
+        @set('tsPointer', i)
+        #timestamp = moment().diff(@get('startTime'), 'seconds')
+        timestamp = moment().format()
+        @get('timestamps').push([word,timestamp])
+
+
+
   filter: (results) ->
 
     @set('detectedActions', [])
 
     f1r = @firstFilter(results)
-    console.log(f1r)
+    #console.log(f1r)
 
-    f2r = @secondFilter(f1r)
-    console.log(f2r)
+    f2r = @secondFilter(f1r,'filter')
+    #console.log(f2r)
 
     f3r = @thirdFilter(f2r)
     console.log(f3r)
-    console.log @get('detectedActions')
+    console.log @get('timestamps')
+    #console.log @get('detectedActions')
     @set('structuredData', f3r)
 
     @setProperties
       resultString: f1r
-      showResult: true
+      showResult:   true
+    @set 'timestamps', []
 
   firstFilter: (results) ->
     scores = new Array()
     for result,i in results
       for keyword in @get('keywords')
         regexStr = new RegExp(keyword,"g")
-        count = (result.toLowerCase().match(regexStr) || []).length
+        count = (result?.toLowerCase().match(regexStr) || []).length
         if (typeof scores[i] == 'undefined')
           scores[i] = 0
         scores[i] += count
@@ -119,14 +156,19 @@ SplashController = Ember.Controller.extend
     matchedIndex = scores.indexOf(Math.max.apply(Math,scores))
     return results[matchedIndex].toLowerCase()
 
-  secondFilter: (f1r) ->
+  secondFilter: (f1r, purpose) ->
     for replacement in @get('replacements')
       if (f1r.indexOf(replacement[0]) > -1)
         f1r = @replaceAll(replacement[0],replacement[1],f1r)
-        console.log f1r
+        #console.log f1r
 
     parsedResults = f1r.split(" ")
-    output = @get('output')
+
+    if purpose == 'filter'
+      output = @get('output')
+    else if purpose == 'timestamp'
+      output = @get('outputTS')
+
     for parsedResult in parsedResults
       if parsedResult.toString().includes('#')
         output.push(parsedResult)
@@ -191,11 +233,13 @@ SplashController = Ember.Controller.extend
         actions.pushObject(currentElement)
         @set('detectedActions', actions)
         type = @getActionParamsType(currentElement)
-        console.log(currentElement)
-        console.log(type)
+        actionTS = @getActionTS(currentElement)
+        timeStamp = if actionTS? then actionTS else "-"
+        #console.log(currentElement)
+        #console.log(type)
         finalResults[finalResults_i] = @getContext(f2r, @get('lastID_i'),currentIndex, type)
-        finalResults[finalResults_i].unshift("Item #{finalResults_i + 1}", "-")
-        console.log(finalResults_i)
+        finalResults[finalResults_i].unshift("Item #{finalResults_i + 1}", timeStamp)
+        #console.log(finalResults_i)
         finalResults_i++
       currentIndex++
     return finalResults
@@ -214,6 +258,13 @@ SplashController = Ember.Controller.extend
       true
     else
       false
+
+  getActionTS: (element) ->
+    for actionHash,i in @get('timestamps')
+      if element == actionHash[0]
+        timestamp =  actionHash[1]
+        @get('timestamps').splice(i,1)
+        return timestamp
 
   getActionParamsType: (element) ->
     beforeType = ['make','miss','grab','shoot','take']
@@ -234,7 +285,7 @@ SplashController = Ember.Controller.extend
       while (!contextComplete)
         context.push(arr[current_i++])
         if typeof (arr[current_i]) == 'undefined'
-          console.log typeof(arr[current_i])
+          #console.log typeof(arr[current_i])
           currentIndex = current_i - 1
           contextComplete = true
           break
@@ -245,7 +296,7 @@ SplashController = Ember.Controller.extend
       while (!contextComplete)
         context.push(arr[current_i++])
         if (typeof (arr[current_i]) == 'undefined')
-          console.log(typeof (arr[current_i]))
+          #console.log(typeof (arr[current_i]))
           currentIndex = current_i - 1
           contextComplete = true
           break
@@ -261,7 +312,7 @@ SplashController = Ember.Controller.extend
       while (!contextComplete)
         context.push(arr[current_i++])
         if (typeof (arr[current_i]) == 'undefined')
-          console.log(typeof (arr[current_i]))
+          #console.log(typeof (arr[current_i]))
           currentIndex = current_i - 1
           contextComplete = true
           break
@@ -293,7 +344,7 @@ SplashController = Ember.Controller.extend
         recognition.stop()
         now = moment()
         @set 'endTime', now
-        console.log @get('duration')
+        #console.log @get('duration')
 
 
 `export default SplashController`
