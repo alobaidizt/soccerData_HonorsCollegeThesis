@@ -302,6 +302,7 @@ SplashController = Ember.Controller.extend
           break
         if (@isID(arr[current_i]))
           context.push(arr[current_i])
+          @set('lastID_i', current_i)
           currentIndex = current_i
           contextComplete = true
         else if (@isAction(arr[current_i]))
@@ -318,6 +319,7 @@ SplashController = Ember.Controller.extend
           break
         if (@isID(arr[current_i]))
           context.push(arr[current_i])
+          @set('lastID_i', current_i)
           currentIndex = current_i
           contextComplete = true
     return context
