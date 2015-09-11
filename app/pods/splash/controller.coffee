@@ -261,11 +261,11 @@ SplashController = Ember.Controller.extend
 
   isID: (element) ->
     if element.indexOf('#') > -1
-      console.log (element)
+      #console.log (element)
       if !(@get('playerIDs').indexOf(element) > -1)
         @get('playerIDs').push(element)
         @get('playersData').push([element])
-        console.log @get('playerIDs')
+        #console.log @get('playerIDs')
       true
     else
       false
