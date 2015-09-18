@@ -47,6 +47,14 @@ SplashController = Ember.Controller.extend
 
     keywords = ['shoot', 'make', 'inbound','bounce', 'lose', 'steal', 'pass', 'foul', 'free throw', 'miss', 'rebound', 'turnover', 'blue', 'red']
     bbActions = ['make','miss','grab','pass','lose','shoot','turnover-on','take','foul-by','foul-on','no-basket-for','steal-for','inbound','bounce']
+    
+    # Adding Speech Grammar
+    for word in keywords
+      recognition.grammars.addFromString(word)
+    for word in bbActions
+      recognition.grammars.addFromString(word)
+
+
     output = new Array()
     outputTS = new Array()
     timestamps = new Array()
