@@ -285,11 +285,15 @@ SplashController = Ember.Controller.extend
         @set('detectedActions', actions)
         type = @getActionParamsType(currentElement)
         actionTS = @getActionTS(currentElement)
+        link = "https://www.youtube.com/watch?v=KoFNYWVBRL8#t="
         timeStamp = if actionTS? then actionTS else "-"
         #console.log(currentElement)
         #console.log(type)
         finalResults[finalResults_i] = @getContext(f2r, @get('lastID_i'),currentIndex, type, action)
         finalResults[finalResults_i].unshift("Item #{finalResults_i + 1}", timeStamp)
+        if actionTS?
+          timeInSec = moment(actionTS).diff(@startTime, "seconds")
+          console.log "Item #{finalResults_i + 1} ", link + timeInSec + "s"
         #console.log(finalResults_i)
         finalResults_i++
       currentIndex++
