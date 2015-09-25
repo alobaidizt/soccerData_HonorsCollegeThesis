@@ -58,7 +58,7 @@ SplashController = Ember.Controller.extend
     output = new Array()
     outputTS = new Array()
     timestamps = new Array()
-    replacements = [['number ', '#', ],['makes','make'],['first','1st'],['second','2nd'],['free throw','free-throw'],['mrs.','miss'],['misses','miss'],['crabs','grab'],['grabs','grab'],['passes','pass'],['passed','pass'],['shoots','shoot'],['bounces','bounce'],['inbounds','inbound'],['loses','lose'],['ride','red'],['read','red'],[' red','-red'],['lou', 'blue'],[' blue','-blue'],['turn over','turnover'],['turnover on','turnover-on'],['ii','2nd'],['takes','take'],['fouled','foul'],['foul by','foul-by'],['foul on','foul-on'],['no basket for','no-basket-for'],['ball to','ball-to'],['ball from','ball-from'],['steel','steal'],['steal for','steal-for'],['three','3'],['one','1'],['two','2']]
+    replacements = [['number ', '#', ],['makes','make'],['first','1st'],['second','2nd'],['free throw','free-throw'],['message','misses'],['mrs.','miss'],['misses','miss'],['crabs','grab'],['grabs','grab'],['passes','pass'],['passed','pass'],['shirts','shoots'],['shoots','shoot'],['bounces','bounce'],['inbounds','inbound'],['loses','lose'],['ride','red'],['read','red'],[' red','-red'],['lou', 'blue'],[' blue','-blue'],['turn over','turnover'],['turnover on','turnover-on'],['ii','2nd'],['takes','take'],['follow on', 'foul on'],['follow by', 'foul by'],['filed by', 'followed by'],['followed by', 'fouled by'],['fouled','foul'],['foul by','foul-by'],['foul on','foul-on'],['no basket for','no-basket-for'],['ball to','ball-to'],['ball from','ball-from'],['steel','steal'],['steal for','steal-for'],['the tree', 'three'],['three','3'],['one','1'],['two','2']]
 
 
     @setProperties
@@ -137,24 +137,61 @@ SplashController = Ember.Controller.extend
     @set('detectedActions', [])
 
     f1r = @firstFilter(results)
-    #console.log(f1r)
 
     f2r = @secondFilter(f1r,'filter')
-    #console.log(f2r)
 
     f3r = @thirdFilter(f2r)
-    #console.log(f1r)
-    #console.log(f2r)
-    #console.log(f3r)
     console.log 'players Data: ', @get('playersData')
     console.log 'playerIDs: ', @get('playerIDs')
-    #console.log @get('detectedActions')
+
+    f4r = @logic(f3r)
+
     @set('structuredData', f3r)
 
     @setProperties
       resultString: f1r
       showResult:   true
     @set 'timestamps', []
+
+  logic: (structData) ->
+    console.log structData
+    for arr in structData
+      timestamp = arr[1]
+      playerID = arr[2]
+      if playerID?.indexOf('#') < 0
+        playerID = arr[arr.length - 1]
+      dataOut = arr.slice(2).join()
+      console.log dataOut
+
+      if dataOut.indexOf('make') >= 0 && dataOut.indexOf('free-throw') >= 0
+        console.log playerID + " attempted a free throw at " + timestamp
+        console.log playerID + " made a free throw at " + timestamp
+      if dataOut.indexOf('miss') >= 0 && dataOut.indexOf('free-throw') >= 0
+        console.log playerID + " attempted a free throw at " + timestamp
+        console.log playerID + " missed a free throw at " + timestamp
+      if dataOut.indexOf('shoot') >= 0 && dataOut.indexOf(',3') >= 0
+        console.log playerID + " attempted a 3-point shot at " + timestamp
+      if dataOut.indexOf('shoot') >= 0 && dataOut.indexOf(',2') >= 0
+        console.log playerID + " attempted a 2-point shot at " + timestamp
+      if dataOut.indexOf('make') >= 0 && dataOut.indexOf(',3') >= 0
+        console.log playerID + " made a 3-point shot at " + timestamp
+      if dataOut.indexOf('make') >= 0 && dataOut.indexOf(',2') >= 0
+        console.log playerID + " made a 2-point shot at " + timestamp
+      if dataOut.indexOf('foul-by') >= 0 || dataOut.indexOf('foul-on') >= 0
+        fouledPlayerBeginn = dataOut.substring(dataOut.indexOf('foul'))
+        console.log fouledPlayerBeginn
+        fouledPlayerBegin = fouledPlayerBeginn.indexOf('#')
+        console.log fouledPlayerBegin
+        fouledPlayerEnd = dataOut.substring(fouledPlayerBegin).indexOf(',')
+        console.log fouledPlayerEnd
+        if fouledPlayerEnd > -1
+          fouledPlayer = dataOut.substring(fouledPlayerBegin, fouledPlayerEnd)
+          console.log fouledPlayer
+        else
+          fouledPlayer = dataOut.substring(fouledPlayerBegin)
+          console.log fouledPlayer
+        console.log "Foul on " + fouledPlayer + " at " + timestamp
+
 
   firstFilter: (results) ->
     scores = new Array()
