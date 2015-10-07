@@ -6,5 +6,6 @@ Router = Ember.Router.extend
 
 Router.map ->
   @resource 'splash', { path : "/" }
+  @route 'calibration'
 
 `export default Router;`

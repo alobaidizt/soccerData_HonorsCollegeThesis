@@ -1,5 +1,5 @@
 {
-  "name": "testing-system",
+  "name": "basketball-data",
   "dependencies": {
     "ember": "1.13.7",
     "ember-cli-shims": "ember-cli/ember-cli-shims#0.0.3",
@@ -17,7 +17,8 @@
     "fontawesome": "~4.4.0",
     "materialize": "~0.97.0",
     "moment": ">= 2.8.0",
-    "moment-timezone": ">= 0.1.0"
+    "moment-timezone": ">= 0.1.0",
+    "firebase": "^2.1.0"
   },
   "resolutions": {
     "jquery": ">=2.1.1"

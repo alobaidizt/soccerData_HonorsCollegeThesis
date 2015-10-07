@@ -2,9 +2,10 @@
 
 module.exports = function(environment) {
   var ENV = {
-    modulePrefix: 'testing-system',
-    podModulePrefix: 'testing-system/pods',
+    modulePrefix: 'basketball-data',
+    podModulePrefix: 'basketball-data/pods',
     environment: environment,
+    firebase: 'https://basketballData.firebaseio.com/',
     baseURL: '/',
     locationType: 'auto',
     EmberENV: {
@@ -23,10 +24,11 @@ module.exports = function(environment) {
     },
     contentSecurityPolicy: {
 	  'default-src': "'none'",
-	  'script-src': "'self'",
+	  'script-src': "'self' 'unsafe-eval' https://cdn.firebase.com/ ",
 	  'font-src': "'self' fonts.gstatic.com",
-	  'connect-src': "'self' http://localhost:4500",
+	  'connect-src': "'self' http://localhost:3000 ",
 	  'img-src': "'self' data:",
+	  'style-src': "'self' https://fonts.googleapis.com ",
 	  'media-src': "'self'"
     }
   };

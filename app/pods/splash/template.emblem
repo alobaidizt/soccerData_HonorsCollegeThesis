@@ -3,6 +3,7 @@
     .col.s
       a.btn-floating.btn-med.waves-effect.waves-light.red class=isListening:green:red click="startListening"
         i.material-icons mic
+      a.btn.btn-med.waves-effect.waves-light.red click="goToCalibrate" Control
     .right
       a.waves-effect.waves-light.btn.grey-text.text-darken-1.transparent href="https://www.linkedin.com/pub/ziyad-al-obaidi/70/598/540" target="_blank" Developer
     .container
