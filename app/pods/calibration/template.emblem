@@ -10,8 +10,8 @@
       .container
         .row
           each keywords
-            .col.s3
-              a.btn.btn-med.waves-effect.waves-light.blue click="calibrateWord"
+            .col.s3 style="padding-top: 1em;"
+              a.col.s12.btn.btn-med.waves-effect.waves-light.blue click="calibrateWord"
                 | #{name} 
         
   .divider
