@@ -30,6 +30,9 @@ module.exports = function(environment) {
 	  'img-src': "'self' data:",
 	  'style-src': "'self' https://fonts.googleapis.com ",
 	  'media-src': "'self'"
+    },
+    'ember-cli-notifications': {
+      icons: 'font-awesome'
     }
   };
 

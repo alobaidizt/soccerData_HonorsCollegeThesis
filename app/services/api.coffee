@@ -24,6 +24,5 @@ ApiService = Ember.Service.extend
       data:
         mask: mask
     })
-  
 
 `export default ApiService`
