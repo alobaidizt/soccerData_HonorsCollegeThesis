@@ -27,45 +27,32 @@ SplashController = Ember.Controller.extend
 
   init: ->
     @_super()
-
-    #For Testing purposes
-     
-    #data = [
-      #['Item 1','-','#24-blue','pass','ball-to','#10-blue']
-      #['Item 2','23567681','#3-red','make','2']
-    #]
-    #actions = ['make','shoot','rebound']
-    #resultTxt = 'Lorem ipsum dolor sit amet, eu has graece adolescens efficiendi'
-    #@set('structuredData', data)
-    #@set('detectedActions', actions)
-    #@set('resultString', resultTxt)
-
     recognition = new webkitSpeechRecognition()
 
     recognition.maxAlternatives = 10
     recognition.continuous      = true
     recognition.interimResults  = true
 
-    keywords = ['shoot', 'make', 'inbound','bounce', 'lose', 'steal', 'pass', 'foul', 'free throw', 'miss', 'rebound', 'turnover', 'blue', 'red']
-    bbActions = ['make','miss','grab','pass','lose','shoot','turnover-on','take','foul-by','foul-on','no-basket-for','steal-for','inbound','bounce']
+    keywords = ['advantage', 'assist', 'backheel', 'ball', 'bicycle kick', 'box', 'captain', 'chance','corner kick','cross','counterattack','deffender','defence','dribbiling','extra time','forward','foul','free kick','goal','goalkeeper','goal kick','goal line','golden goal','hat-trick','keeper','kick-off','lay-off pass','long ball','man of the match','own goal','pass','panelty kick','red card','replacement','save','dribble','shoot','slide tackle','striker','shooter','substitute','tackle','throw-in','wing','winger','yellow card']
+    soccerActions = ['assist','cross','deffend','dribble','kick','pass','replace','save','shoot','slide','strike','substitute','score']
     
     # Adding Speech Grammar
     for word in keywords
       recognition.grammars.addFromString(word)
-    for word in bbActions
+    for word in soccerActions
       recognition.grammars.addFromString(word)
 
 
     output = new Array()
     outputTS = new Array()
     timestamps = new Array()
-    replacements = [['number ', '#', ],['makes','make'],['first','1st'],['second','2nd'],['free throw','free-throw'],['message','misses'],['mrs.','miss'],['misses','miss'],['crabs','grab'],['grabs','grab'],['passes','pass'],['passed','pass'],['shirts','shoots'],['shoots','shoot'],['bounces','bounce'],['inbounds','inbound'],['loses','lose'],['ride','red'],['read','red'],[' red','-red'],['lou', 'blue'],[' blue','-blue'],['turn over','turnover'],['turnover on','turnover-on'],['ii','2nd'],['takes','take'],['follow on', 'foul on'],['follow by', 'foul by'],['filed by', 'followed by'],['followed by', 'fouled by'],['fouled','foul'],['foul by','foul-by'],['foul on','foul-on'],['no basket for','no-basket-for'],['ball to','ball-to'],['ball from','ball-from'],['steel','steal'],['steal for','steal-for'],['the tree', 'three'],['three','3'],['one','1'],['two','2']]
+    replacements = [['number ', '#', ],['makes','make'],['first','1st'],['second','2nd'],['message','misses'],['mrs.','miss'],['misses','miss'],['passes','pass'],['passed','pass'],['shirts','shoots'],['shoots','shoot'],['loses','lose'],['ride','red'],['read','red'],[' red','-red'],['lou', 'blue'],[' blue','-blue'],['ii','2nd'],['takes','take'],['follow on', 'foul on'],['fouled','foul'],['foul on','foul-on'],['ball to','ball-to'],['steel','steal'],['steal for','steal-for'],['the tree', 'three'],['three','3'],['one','1'],['two','2']]
 
 
     @setProperties
       recognition:  recognition
       keywords:     keywords
-      bbActions:      bbActions
+      soccerActions:      soccerActions
       output:       output
       output:       outputTS
       replacements: replacements
@@ -145,54 +132,12 @@ SplashController = Ember.Controller.extend
     console.log 'players Data: ', @get('playersData')
     console.log 'playerIDs: ', @get('playerIDs')
 
-    f4r = @logic(f3r)
-
     @set('structuredData', f3r)
 
     @setProperties
       resultString: f1r
       showResult:   true
     @set 'timestamps', []
-
-  logic: (structData) ->
-    console.log structData
-    for arr in structData
-      timestamp = arr[1]
-      playerID = arr[2]
-      if playerID?.indexOf('#') < 0
-        playerID = arr[arr.length - 1]
-      dataOut = arr.slice(2).join()
-      console.log dataOut
-
-      if dataOut.indexOf('make') >= 0 && dataOut.indexOf('free-throw') >= 0
-        console.log playerID + " attempted a free throw at " + timestamp
-        console.log playerID + " made a free throw at " + timestamp
-      if dataOut.indexOf('miss') >= 0 && dataOut.indexOf('free-throw') >= 0
-        console.log playerID + " attempted a free throw at " + timestamp
-        console.log playerID + " missed a free throw at " + timestamp
-      if dataOut.indexOf('shoot') >= 0 && dataOut.indexOf(',3') >= 0
-        console.log playerID + " attempted a 3-point shot at " + timestamp
-      if dataOut.indexOf('shoot') >= 0 && dataOut.indexOf(',2') >= 0
-        console.log playerID + " attempted a 2-point shot at " + timestamp
-      if dataOut.indexOf('make') >= 0 && dataOut.indexOf(',3') >= 0
-        console.log playerID + " made a 3-point shot at " + timestamp
-      if dataOut.indexOf('make') >= 0 && dataOut.indexOf(',2') >= 0
-        console.log playerID + " made a 2-point shot at " + timestamp
-      if dataOut.indexOf('foul-by') >= 0 || dataOut.indexOf('foul-on') >= 0
-        fouledPlayerBeginn = dataOut.substring(dataOut.indexOf('foul'))
-        console.log fouledPlayerBeginn
-        fouledPlayerBegin = fouledPlayerBeginn.indexOf('#')
-        console.log fouledPlayerBegin
-        fouledPlayerEnd = dataOut.substring(fouledPlayerBegin).indexOf(',')
-        console.log fouledPlayerEnd
-        if fouledPlayerEnd > -1
-          fouledPlayer = dataOut.substring(fouledPlayerBegin, fouledPlayerEnd)
-          console.log fouledPlayer
-        else
-          fouledPlayer = dataOut.substring(fouledPlayerBegin)
-          console.log fouledPlayer
-        console.log "Foul on " + fouledPlayer + " at " + timestamp
-
 
   firstFilter: (results) ->
     scores = new Array()
@@ -227,11 +172,11 @@ SplashController = Ember.Controller.extend
         output.push(parsedResult)
       if parsedResult.toString().includes('2nd')
         output.push(parsedResult)
-      if parsedResult.toString().includes('rebound')
+      if parsedResult.toString().includes('assist')
         output.push(parsedResult)
-      if parsedResult.toString().includes('inbound')
+      if parsedResult.toString().includes('advantage')
         output.push(parsedResult)
-      if parsedResult.toString().includes('bounce')
+      if parsedResult.toString().includes('throw-pass')
         output.push(parsedResult)
       if parsedResult.toString().includes('make')
         output.push(parsedResult)
@@ -239,7 +184,7 @@ SplashController = Ember.Controller.extend
         output.push(parsedResult)
       if parsedResult.toString().includes('miss')
         output.push(parsedResult)
-      if parsedResult.toString().includes('grab')
+      if parsedResult.toString().includes('slide')
         output.push(parsedResult)
       if parsedResult.toString().includes('lose')
         output.push(parsedResult)
@@ -247,13 +192,13 @@ SplashController = Ember.Controller.extend
         output.push(parsedResult)
       if parsedResult.toString().includes('shoot')
         output.push(parsedResult)
-      if parsedResult.toString().includes('turnover-on')
+      if parsedResult.toString().includes('counter-attack')
         output.push(parsedResult)
-      if parsedResult.toString().includes('free-throw')
+      if parsedResult.toString().includes('panelty-shot')
         output.push(parsedResult)
-      if parsedResult.toString().includes('no-basket-for')
+      if parsedResult.toString().includes('corner-kick')
         output.push(parsedResult)
-      if parsedResult.toString().includes('foul-by')
+      if parsedResult.toString().includes('throw-in')
         output.push(parsedResult)
       if parsedResult.toString().includes('foul-on')
         output.push(parsedResult)
@@ -288,8 +233,6 @@ SplashController = Ember.Controller.extend
         actionTS = @getActionTS(currentElement)
         link = "https://www.youtube.com/watch?v=KoFNYWVBRL8#t="
         timeStamp = if actionTS? then actionTS else "-"
-        #console.log(currentElement)
-        #console.log(type)
         finalResults[finalResults_i] = @getContext(f2r, @get('lastID_i'),currentIndex, type, action)
         finalResults[finalResults_i].unshift("Item #{finalResults_i + 1}", timeStamp)
         if actionTS?
@@ -304,7 +247,7 @@ SplashController = Ember.Controller.extend
     elements[i]
 
   isAction: (element) ->
-    if @get('bbActions').indexOf(element) > -1
+    if @get('soccerActions').indexOf(element) > -1
       true
     else
       false
@@ -329,8 +272,8 @@ SplashController = Ember.Controller.extend
 
   getActionParamsType: (element) ->
     beforeType = ['make','miss','grab','shoot','take','lose']
-    afterType = ['turnover-on','foul-on','foul-by','no-basket-for','steal-for']
-    bothType = ['pass','inbound','bounce']
+    afterType = ['counterattack','foul-on','foul-by','no-foul-on','corner-kick-for']
+    bothType = ['pass','throw']
     if beforeType.indexOf(element) > -1
       return "before"
     else if afterType.indexOf(element) > -1

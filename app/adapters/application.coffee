@@ -1,7 +1,7 @@
 `import DS from "ember-data"`
 
 ApplicationAdapter = DS.RESTAdapter.extend
-    host: 'https://104.131.117.229:444'
+    host: 'https://127.0.0.1:444'
     namespace: 'api'
 
 `export default ApplicationAdapter`

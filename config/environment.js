@@ -2,10 +2,9 @@
 
 module.exports = function(environment) {
   var ENV = {
-    modulePrefix: 'basketball-data',
-    podModulePrefix: 'basketball-data/pods',
+    modulePrefix: 'hc-soccer-data',
+    podModulePrefix: 'hc-soccer-data/pods',
     environment: environment,
-    firebase: 'https://basketballData.firebaseio.com/',
     baseURL: '/',
     locationType: 'auto',
     EmberENV: {
@@ -24,7 +23,7 @@ module.exports = function(environment) {
     },
     contentSecurityPolicy: {
 	  'default-src': "'none'",
-	  'script-src': "'self' 'unsafe-eval' https://cdn.firebase.com/ ",
+	  'script-src': "'self' 'unsafe-eval'",
 	  'font-src': "'self' fonts.gstatic.com",
 	  'connect-src': "'self' http://localhost:3000 http://104.131.117.229:3000",
 	  'img-src': "'self' data:",
